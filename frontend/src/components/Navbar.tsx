@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Target, Sun, Moon, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSystemHealth } from '../api/client';
@@ -6,6 +6,16 @@ import { useTheme } from '../context/ThemeContext';
 
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const { data: health, isSuccess, isLoading } = useQuery({
     queryKey: ['systemHealth'],
@@ -15,7 +25,11 @@ export const Navbar: React.FC = () => {
   });
 
   return (
-    <header className="h-16 border-b border-border bg-surface sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between">
+    <header className={`h-16 border-b sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between transition-all duration-200 backdrop-blur-md ${
+      isScrolled 
+        ? 'bg-surface/80 border-border/80 shadow-sm' 
+        : 'bg-surface/90 border-border'
+    }`}>
       {/* Brand logo & name */}
       <div className="flex items-center gap-3">
         <div className="h-9 w-9 rounded-lg bg-primary-soft text-primary flex items-center justify-center shrink-0">

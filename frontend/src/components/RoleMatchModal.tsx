@@ -21,19 +21,29 @@ export const RoleMatchModal: React.FC<RoleMatchModalProps> = ({
   onClose,
 }) => {
   const navigate = useNavigate();
+  const [isScrolled, setIsScrolled] = React.useState(false);
 
   if (!isOpen || !role) return null;
 
   const result = computeRoleMatch(candidate, role);
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setIsScrolled(e.currentTarget.scrollTop > 8);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
       <div 
-        className="bg-surface border border-border rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col"
+        onScroll={handleScroll}
+        className="bg-surface border border-border rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
-        <div className="flex items-start justify-between p-4 sm:p-6 border-b border-border sticky top-0 bg-surface z-10">
+        {/* Modal Header with Glassmorphism */}
+        <div className={`flex items-start justify-between p-4 sm:p-6 border-b sticky top-0 z-20 backdrop-blur-md transition-all duration-200 ${
+          isScrolled 
+            ? 'bg-surface/80 border-border/80 shadow-sm' 
+            : 'bg-surface/85 border-border'
+        }`}>
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1">
               <Badge variant="primary">{role.companyName}</Badge>
@@ -172,8 +182,8 @@ export const RoleMatchModal: React.FC<RoleMatchModalProps> = ({
           </div>
         </div>
 
-        {/* Modal Footer Actions */}
-        <div className="p-4 sm:p-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface sticky bottom-0">
+        {/* Modal Footer Actions with Glassmorphism */}
+        <div className="p-4 sm:p-6 border-t border-border/80 flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface/80 backdrop-blur-md sticky bottom-0 z-20 shadow-[0_-4px_16px_rgba(0,0,0,0.03)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.2)]">
           <Button variant="ghost" onClick={onClose}>
             Close
           </Button>

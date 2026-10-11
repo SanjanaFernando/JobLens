@@ -30,10 +30,10 @@ export default {
         },
         bg: 'var(--color-bg)',
         surface: {
-          DEFAULT: 'var(--color-surface)',
-          2: 'var(--color-surface-2)',
+          DEFAULT: 'rgb(var(--color-surface-rgb) / <alpha-value>)',
+          2: 'rgb(var(--color-surface-2-rgb) / <alpha-value>)',
         },
-        border: 'var(--color-border)',
+        border: 'rgb(var(--color-border-rgb) / <alpha-value>)',
         text: {
           DEFAULT: 'var(--color-text)',
           muted: 'var(--color-text-muted)',

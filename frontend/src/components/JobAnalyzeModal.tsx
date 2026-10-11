@@ -122,8 +122,8 @@ Closing Date: 30 October 2026.`,
         className="bg-surface border border-border rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between p-4 sm:p-6 border-b border-border sticky top-0 bg-surface z-10">
+        {/* Header with Glassmorphism */}
+        <div className="flex items-start justify-between p-4 sm:p-6 border-b border-border/80 sticky top-0 bg-surface/80 backdrop-blur-md z-20 transition-all">
           <div>
             <h2 className="text-xl sm:text-2xl font-normal text-text">
               Extract and add job description
@@ -242,8 +242,8 @@ Closing Date: 30 October 2026.`,
           )}
         </div>
 
-        {/* Footer */}
-        <div className="p-4 sm:p-6 border-t border-border flex items-center justify-between bg-surface sticky bottom-0">
+        {/* Footer with Glassmorphism */}
+        <div className="p-4 sm:p-6 border-t border-border/80 flex items-center justify-between bg-surface/80 backdrop-blur-md sticky bottom-0 z-20 shadow-[0_-4px_16px_rgba(0,0,0,0.03)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.2)]">
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
