@@ -1,84 +1,128 @@
 import React, { useState } from 'react';
-import { FileText, ShieldAlert, EyeOff } from 'lucide-react';
+import { 
+  FileText, 
+  Upload, 
+  ShieldCheck, 
+  CheckCircle2
+} from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
 
 export const ResumeUploadPage: React.FC = () => {
-  const [resumeText, setResumeText] = useState(`John Doe (077-1234567, john.doe@email.com, Colombo 03, linkedin.com/in/johndoe)
-BSc (Hons) in Computer Science - University of Moratuwa
-Skills: Java, Spring Boot, React, TypeScript, PostgreSQL, Docker, Git
-Final Year Project: Microservices-based Logistics Routing System using Spring Cloud & React.`);
+  const [resumeText, setResumeText] = useState(`Kasun Perera
+077 123 4567 | kasun.perera@example.com | Colombo 05 | linkedin.com/in/kasunperera
+BSc (Hons) in Engineering, Computer Science - University of Moratuwa
 
-  const [scrubbed, setScrubbed] = useState(false);
+Technical skills:
+Java 21, Spring Boot, PostgreSQL, Docker, Git, REST APIs, TypeScript, React
 
-  // Demonstrate local privacy scrubbing before Gemini transmission
-  const scrubPII = (text: string) => {
+Final year project:
+Microservices routing engine for intercity logistics in Sri Lanka with automated failover.`);
+
+  const [isCleaned, setIsCleaned] = useState(false);
+
+  const cleanPII = (text: string) => {
     return text
-      .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '[EMAIL REDACTED]')
-      .replace(/(\+?\d{1,3}[- ]?)?\d{10}|\b07\d{8}\b/g, '[PHONE REDACTED]')
-      .replace(/https?:\/\/[^\s]+|linkedin\.com[^\s]*/g, '[URL REDACTED]')
-      .replace(/John Doe/g, '[CANDIDATE]');
+      .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, '[email redacted]')
+      .replace(/(\+?\d{1,3}[- ]?)?\d{10}|\b07\d{8}\b|\b07\d\s\d{3}\s\d{4}\b/g, '[phone redacted]')
+      .replace(/https?:\/\/[^\s]+|linkedin\.com[^\s]*/g, '[link redacted]')
+      .replace(/Kasun Perera/g, '[candidate]');
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
-          <FileText className="w-6 h-6 text-teal-400" />
-          Resume Parser &amp; Skill-Gap Engine
-        </h1>
-        <p className="text-xs text-slate-400 mt-1">
-          Private user data stored in your dedicated schema (`tenant_user_id`). Zero file storage footprint.
-        </p>
-      </div>
-
-      {/* Free Tier Privacy Guardrail Banner */}
-      <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs text-teal-300 flex items-start gap-3">
-        <ShieldAlert className="w-5 h-5 text-teal-400 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <span className="font-bold text-white">Free-Tier Privacy Scrubbing Enabled</span>
-          <p className="text-slate-300 leading-relaxed">
-            On the free Gemini API tier, prompts may be evaluated by reviewers. Before your CV reaches Gemini, JobLens automatically strips your name, telephone number, email, location, and social links locally in memory.
+    <div className="space-y-6 max-w-[1200px] mx-auto pb-20 md:pb-8">
+      {/* Page skeleton: Title + description + primary action at top right */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+        <div>
+          <h1 className="text-2xl sm:text-[28px] font-normal leading-tight text-text">
+            Resume profile and privacy
+          </h1>
+          <p className="text-sm text-text-muted mt-1">
+            Upload your resume once to generate your skill profile. No files are stored permanently on disk.
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          <Button variant="primary" icon={Upload} onClick={() => setIsCleaned(true)}>
+            Extract skills profile
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Input box */}
-        <div className="glass-panel rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Input Resume Text</span>
-            <span className="text-[11px] text-slate-500">PDF / DOCX or Raw Text</span>
-          </div>
-          <textarea
-            value={resumeText}
-            onChange={(e) => { setResumeText(e.target.value); setScrubbed(false); }}
-            rows={10}
-            className="w-full p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 font-mono focus:outline-none focus:border-teal-500/50 leading-relaxed resize-none"
-          />
-          <div className="flex justify-end">
-            <button
-              onClick={() => setScrubbed(true)}
-              className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs transition-all flex items-center gap-2"
-            >
-              <EyeOff className="w-3.5 h-3.5" />
-              Scrub PII &amp; Extract Skills
-            </button>
+      {/* Privacy Notice Card (Section 2 Info token + Section 9 Writing Style) */}
+      <Card className="bg-primary-soft/50 border-primary/20 p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" strokeWidth={1.75} />
+          <div className="space-y-1">
+            <h3 className="text-sm font-medium text-text">Your privacy on the free Gemini tier</h3>
+            <p className="text-xs text-text-muted leading-relaxed">
+              Google free tiers may review raw prompts. To protect your data, JobLens automatically strips your name, phone number, email address, and links locally in your browser before sending text to the AI model.
+            </p>
           </div>
         </div>
+      </Card>
 
-        {/* Cleaned payload preview */}
-        <div className="glass-panel rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Transmitted to Gemini (Scrubbed)</span>
-            <span className="text-[11px] text-teal-400 font-semibold">{scrubbed ? 'Ready for Flash-Lite' : 'Awaiting Scrub'}</span>
+      {/* Editor & Scrubbed Payload Side-by-Side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Input Card */}
+        <Card className="space-y-4">
+          <div>
+            <label htmlFor="resume-input" className="block text-sm font-medium text-text mb-1">
+              Resume text or paste
+            </label>
+            <p className="text-xs text-text-muted mb-2">
+              Paste your resume or CV summary below.
+            </p>
+            <textarea
+              id="resume-input"
+              rows={12}
+              value={resumeText}
+              onChange={(e) => {
+                setResumeText(e.target.value);
+                setIsCleaned(false);
+              }}
+              className="w-full p-3 rounded-lg bg-surface-2 border border-border text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary leading-relaxed resize-none"
+            />
           </div>
-          <pre className="w-full h-56 p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-300 font-mono overflow-auto leading-relaxed">
-            {scrubbed ? scrubPII(resumeText) : 'Click "Scrub PII & Extract Skills" to preview privacy-scrubbed payload.'}
-          </pre>
-          <div className="p-3 rounded-xl bg-slate-900 border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
-            <p className="font-semibold text-slate-300">Target Schema:</p>
-            <p>Table: <code className="text-teal-400 font-mono">tenant_xxx.resume_profile</code> (Parsed JSON only, 0 disk files)</p>
+          <div className="flex justify-between items-center pt-2">
+            <span className="text-xs text-text-muted">
+              Destination: private schema (tenant_user_id)
+            </span>
+            <Button variant="secondary" icon={FileText} onClick={() => setIsCleaned(true)}>
+              Preview cleaned text
+            </Button>
           </div>
-        </div>
+        </Card>
+
+        {/* Cleaned Output Card */}
+        <Card className="space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-2">
+            <div>
+              <h3 className="text-sm font-medium text-text">Transmitted to Gemini Flash-Lite</h3>
+              <p className="text-xs text-text-muted">
+                Sanitized payload stripped of personal identifiable information.
+              </p>
+            </div>
+            <Badge variant={isCleaned ? 'success' : 'neutral'}>
+              {isCleaned ? 'Sanitized' : 'Awaiting scrub'}
+            </Badge>
+          </div>
+
+          <div className="h-[288px] overflow-auto p-3 rounded-lg bg-surface-2 border border-border text-xs text-text font-mono leading-relaxed">
+            {isCleaned ? (
+              <pre className="whitespace-pre-wrap">{cleanPII(resumeText)}</pre>
+            ) : (
+              <span className="text-text-muted">
+                Click "Preview cleaned text" or "Extract skills profile" to inspect the sanitized version.
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-text-muted">
+            <CheckCircle2 className="w-4 h-4 text-success shrink-0" strokeWidth={1.75} />
+            <span>Structured JSON output saved only in your private database.</span>
+          </div>
+        </Card>
       </div>
     </div>
   );

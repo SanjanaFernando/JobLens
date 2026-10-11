@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,12 +9,47 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e',
+          DEFAULT: 'var(--color-primary)',
+          hover: 'var(--color-primary-hover)',
+          soft: 'var(--color-primary-soft)',
         },
+        accent: {
+          DEFAULT: 'var(--color-accent)',
+        },
+        success: {
+          DEFAULT: 'var(--color-success)',
+        },
+        warning: {
+          DEFAULT: 'var(--color-warning)',
+        },
+        danger: {
+          DEFAULT: 'var(--color-danger)',
+        },
+        info: {
+          DEFAULT: 'var(--color-info)',
+        },
+        bg: 'var(--color-bg)',
+        surface: {
+          DEFAULT: 'var(--color-surface)',
+          2: 'var(--color-surface-2)',
+        },
+        border: 'var(--color-border)',
+        text: {
+          DEFAULT: 'var(--color-text)',
+          muted: 'var(--color-text-muted)',
+        },
+      },
+      fontFamily: {
+        heading: ['"Hallo Sans"', '"Noto Sans Sinhala"', '"Noto Sans Tamil"', 'system-ui', 'sans-serif'],
+        body: ['"Neutra Text"', '"Noto Sans Sinhala"', '"Noto Sans Tamil"', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        lg: '8px',
+        xl: '12px',
+        full: '9999px',
+      },
+      boxShadow: {
+        soft: '0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04)',
       },
     },
   },

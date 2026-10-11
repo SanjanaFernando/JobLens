@@ -1,9 +1,12 @@
 import React from 'react';
-import { Sparkles, ShieldCheck, Database, Layers } from 'lucide-react';
+import { Target, Sun, Moon, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSystemHealth } from '../api/client';
+import { useTheme } from '../context/ThemeContext';
 
 export const Navbar: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
+
   const { data: health, isSuccess, isLoading } = useQuery({
     queryKey: ['systemHealth'],
     queryFn: fetchSystemHealth,
@@ -12,59 +15,70 @@ export const Navbar: React.FC = () => {
   });
 
   return (
-    <header className="h-16 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 px-6 flex items-center justify-between">
-      {/* Brand Logo & Name */}
+    <header className="h-16 border-b border-border bg-surface sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between">
+      {/* Brand logo & name */}
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 p-0.5 shadow-lg shadow-teal-500/20">
-          <div className="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-teal-400" />
-          </div>
+        <div className="h-9 w-9 rounded-lg bg-primary-soft text-primary flex items-center justify-center shrink-0">
+          <Target className="w-5 h-5" strokeWidth={1.75} />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+            <span className="font-heading text-lg font-normal text-text tracking-tight">
               JobLens
             </span>
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/30">
-              Phase 0 Complete
+            <span className="h-6 px-2.5 rounded-full text-xs font-medium bg-primary-soft text-primary inline-flex items-center">
+              Phase 0
             </span>
           </div>
-          <p className="text-xs text-slate-400">Career Intelligence for Sri Lankan Engineering Graduates</p>
+          <p className="text-xs text-text-muted hidden sm:block">
+            Career intelligence for Sri Lankan fresh engineering graduates
+          </p>
         </div>
       </div>
 
-      {/* Center Status Indicators */}
-      <div className="hidden md:flex items-center gap-4 text-xs">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
-          <Layers className="w-3.5 h-3.5 text-teal-400" />
-          <span>Spring Boot 3.4 &amp; React 18</span>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
-          <Database className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Dual DB Architecture</span>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
-          <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-          <span>$0 Free-Tier Guardrails</span>
-        </div>
-      </div>
-
-      {/* Backend API Connection Status */}
+      {/* Right controls: Status indicator + Theme toggle */}
       <div className="flex items-center gap-3">
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-          isLoading
-            ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-            : isSuccess
-            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-sm shadow-emerald-500/10'
-            : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-        }`}>
-          <span className={`w-2 h-2 rounded-full ${
-            isLoading ? 'bg-amber-400 animate-pulse' : isSuccess ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'
-          }`} />
-          <span>
-            {isLoading ? 'Connecting to Backend...' : isSuccess ? `Backend Active (${health?.aiModelConfigured || 'OK'})` : 'Backend Offline'}
+        {/* Connection status badge (Section 2 & 6) */}
+        <div
+          className={`h-6 px-2.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 border ${
+            isLoading
+              ? 'bg-warning/15 text-warning border-warning/30'
+              : isSuccess
+              ? 'bg-success/15 text-success border-success/30'
+              : 'bg-danger/15 text-danger border-danger/30'
+          }`}
+        >
+          {isLoading ? (
+            <AlertTriangle className="w-3.5 h-3.5" strokeWidth={1.75} />
+          ) : isSuccess ? (
+            <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+          ) : (
+            <XCircle className="w-3.5 h-3.5" strokeWidth={1.75} />
+          )}
+          <span className="hidden sm:inline">
+            {isLoading
+              ? 'Connecting…'
+              : isSuccess
+              ? `Backend active (${health?.aiModelConfigured || 'OK'})`
+              : 'Backend offline'}
+          </span>
+          <span className="sm:hidden">
+            {isSuccess ? 'Active' : 'Offline'}
           </span>
         </div>
+
+        {/* Theme toggle button (Section 2) */}
+        <button
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="h-10 w-10 rounded-lg flex items-center justify-center text-text-muted hover:text-text hover:bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-5 h-5" strokeWidth={1.75} />
+          ) : (
+            <Moon className="w-5 h-5" strokeWidth={1.75} />
+          )}
+        </button>
       </div>
     </header>
   );

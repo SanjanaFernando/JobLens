@@ -1,124 +1,175 @@
 import React, { useState } from 'react';
-import { BotMessageSquare, Send, ShieldCheck, Database, Wrench, Lock } from 'lucide-react';
+import { 
+  Send, 
+  ShieldCheck, 
+  RotateCcw,
+  Target
+} from 'lucide-react';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+
+interface ChatMsg {
+  id: string;
+  sender: 'user' | 'assistant';
+  text: string;
+  tools?: string[];
+}
 
 export const ChatAssistantPage: React.FC = () => {
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<ChatMsg[]>([
     {
-      role: 'assistant',
-      content: 'Hello! I am your JobLens Career Advisor. I have read-only access strictly to your private schema (analyses, learning plans, resume) and the shared public role catalog. How can I help you today?',
-      toolsUsed: ['initTenantContext'],
+      id: '1',
+      sender: 'assistant',
+      text: 'Hello Kasun! I am your JobLens career coach. I answer questions using your private resume and analyses, plus the shared role catalog. What would you like to explore today?',
+      tools: ['initTenantContext'],
     },
   ]);
   const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   const sampleQuestions = [
-    'What are my top missing skills across all saved jobs?',
-    'What do Sri Lankan tech companies require most for QA roles?',
-    'Explain my 2-week learning plan for Docker.',
+    'What are my top missing skills for associate roles?',
+    'Show me companies actively hiring for QA in Colombo.',
+    'Create a 2-week learning plan for Docker.',
   ];
 
   const handleSend = () => {
-    if (!input.trim()) return;
-    const userMsg = { role: 'user', content: input, toolsUsed: [] };
-    setMessages(prev => [...prev, userMsg]);
+    if (!input.trim() || isTyping) return;
+    const userText = input;
     setInput('');
 
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        sender: 'user',
+        text: userText,
+        tools: [],
+      },
+    ]);
+
+    setIsTyping(true);
+
     setTimeout(() => {
-      setMessages(prev => [
+      setIsTyping(false);
+      setMessages((prev) => [
         ...prev,
         {
-          role: 'assistant',
-          content: `[Gemini Function Call Simulator] Evaluated user request. In Phase 6, Gemini will execute function calls (e.g. getMyTopMissingSkills) dynamically with tenant context derived exclusively from your verified JWT.`,
-          toolsUsed: ['getMyTopMissingSkills(discipline="SE")'],
+          id: (Date.now() + 1).toString(),
+          sender: 'assistant',
+          text: 'AI suggestion: Based on your saved roles at WSO2 and Sysco LABS, Docker and CI/CD are your highest priority missing skills. Both appear in 75% of your target roles. Would you like to generate a step-by-step learning roadmap for Docker?',
+          tools: ['getMyTopMissingSkills(discipline="Software engineering")'],
         },
       ]);
-    }, 600);
+    }, 700);
+  };
+
+  const handleClear = () => {
+    setMessages([
+      {
+        id: '1',
+        sender: 'assistant',
+        text: 'Conversation cleared. How can I assist you with your career goals?',
+        tools: [],
+      },
+    ]);
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto flex flex-col h-[calc(100vh-140px)]">
-      <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
-          <BotMessageSquare className="w-6 h-6 text-teal-400" />
-          AI Career Advisor (Gemini Function Calling)
-        </h1>
-        <p className="text-xs text-slate-400 mt-1">
-          Grounded solely in your private tenant data and public market stats. Model cannot access another user's database.
-        </p>
+    <div className="space-y-4 max-w-[1000px] mx-auto pb-20 md:pb-8 flex flex-col h-[calc(100vh-140px)]">
+      {/* Page skeleton: Title + description + action */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-3 shrink-0">
+        <div>
+          <h1 className="text-2xl sm:text-[28px] font-normal leading-tight text-text">
+            Career coach chat
+          </h1>
+          <p className="text-sm text-text-muted mt-0.5">
+            Grounded in your private database and verified shared company roles.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" icon={RotateCcw} onClick={handleClear}>
+            Clear conversation
+          </Button>
+        </div>
       </div>
 
-      {/* Security Architecture Tag */}
-      <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
-          <Lock className="w-3.5 h-3.5 text-teal-400" />
-          Read-Only Tools Only
-        </span>
-        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
-          <Database className="w-3.5 h-3.5 text-emerald-400" />
-          Tenant Injected From JWT (Never Model Arg)
-        </span>
-        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
-          <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-          Prompt-Injection Guardrails
+      {/* Safety Notice Badge (Section 9 & Section 2) */}
+      <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted shrink-0">
+        <Badge variant="success" icon={ShieldCheck}>
+          Read-only tools
+        </Badge>
+        <Badge variant="info">
+          Tenant schema isolated
+        </Badge>
+        <span className="text-text-muted">
+          Model cannot access data belonging to another student.
         </span>
       </div>
 
-      {/* Chat Messages Log */}
-      <div className="flex-1 glass-panel rounded-2xl p-6 overflow-y-auto space-y-4">
-        {messages.map((m, idx) => (
+      {/* Message History Area (Section 6: User right in primary-soft, Assistant left in surface) */}
+      <div className="flex-1 overflow-y-auto space-y-3 p-4 rounded-xl border border-border bg-surface">
+        {messages.map((m) => (
           <div
-            key={idx}
-            className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
+            key={m.id}
+            className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
           >
             <div
-              className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed ${
-                m.role === 'user'
-                  ? 'bg-teal-500 text-slate-950 font-medium'
-                  : 'bg-slate-900 border border-slate-800 text-slate-200'
+              className={`max-w-[85%] sm:max-w-[75%] rounded-xl p-3.5 text-sm leading-relaxed ${
+                m.sender === 'user'
+                  ? 'bg-primary-soft text-text'
+                  : 'bg-surface border border-border text-text'
               }`}
             >
-              <p>{m.content}</p>
-              {m.toolsUsed && m.toolsUsed.length > 0 && (
-                <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center gap-2 text-[10px] text-teal-400 font-mono">
-                  <Wrench className="w-3 h-3" />
-                  <span>Tools: {m.toolsUsed.join(', ')}</span>
+              <p>{m.text}</p>
+
+              {m.tools && m.tools.length > 0 && (
+                <div className="mt-2 pt-2 border-t border-border/80 text-[11px] text-text-muted flex items-center gap-1.5 font-mono">
+                  <Target className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
+                  <span>Tool call: {m.tools.join(', ')}</span>
                 </div>
               )}
             </div>
           </div>
         ))}
+
+        {/* Typing indicator (Section 6) */}
+        {isTyping && (
+          <div className="flex items-center gap-2 text-xs text-text-muted p-2">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span>JobLens is thinking…</span>
+          </div>
+        )}
       </div>
 
-      {/* Suggested prompts & input bar */}
-      <div className="space-y-3">
+      {/* Bottom Area: Suggested question chips + Input field */}
+      <div className="space-y-3 shrink-0">
+        {/* Suggested questions chips (Section 6) */}
         <div className="flex flex-wrap gap-2">
           {sampleQuestions.map((q, idx) => (
             <button
               key={idx}
               onClick={() => setInput(q)}
-              className="text-[11px] px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all text-left"
+              className="h-6 px-2.5 rounded-full text-xs font-medium bg-surface-2 text-text-muted hover:text-text border border-border transition-colors truncate max-w-xs"
             >
               {q}
             </button>
           ))}
         </div>
 
+        {/* Input bar */}
         <div className="flex items-center gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask about Sri Lankan fresher roles, missing skills, or interview tips..."
-            className="flex-1 p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-teal-500/50"
+            placeholder="Ask about your skill gaps, Sri Lankan fresher roles, or learning roadmaps…"
+            className="flex-1 h-10 px-3 rounded-lg bg-surface border border-border text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           />
-          <button
-            onClick={handleSend}
-            className="px-5 py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs transition-all flex items-center gap-1.5 shadow-md shadow-teal-500/20"
-          >
-            <Send className="w-3.5 h-3.5" />
+          <Button variant="primary" icon={Send} onClick={handleSend} disabled={isTyping || !input.trim()}>
             Send
-          </button>
+          </Button>
         </div>
       </div>
     </div>

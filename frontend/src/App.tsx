@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
-import { Sidebar } from './components/Sidebar';
+import { Sidebar, MobileTabBar } from './components/Sidebar';
 import { DashboardPage } from './pages/DashboardPage';
 import { JobsCatalogPage } from './pages/JobsCatalogPage';
 import { ResumeUploadPage } from './pages/ResumeUploadPage';
@@ -20,25 +21,30 @@ const queryClient = new QueryClient({
 
 export const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-          <Navbar />
-          <div className="flex-1 flex overflow-hidden">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto p-6 lg:p-8">
-              <Routes>
-                <Route path="/" element={<DashboardPage />} />
-                <Route path="/jobs" element={<JobsCatalogPage />} />
-                <Route path="/resume" element={<ResumeUploadPage />} />
-                <Route path="/chat" element={<ChatAssistantPage />} />
-                <Route path="/architecture" element={<ArchitectureDocsPage />} />
-              </Routes>
-            </main>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <div className="min-h-screen bg-bg text-text flex flex-col font-body transition-colors duration-150">
+            <Navbar />
+            <div className="flex-1 flex overflow-hidden">
+              <Sidebar />
+              {/* Main content padding: 16px mobile, 24px tablet, 32px desktop (Section 5) */}
+              <main className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8">
+                <Routes>
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/jobs" element={<JobsCatalogPage />} />
+                  <Route path="/resume" element={<ResumeUploadPage />} />
+                  <Route path="/chat" element={<ChatAssistantPage />} />
+                  <Route path="/architecture" element={<ArchitectureDocsPage />} />
+                </Routes>
+              </main>
+            </div>
+            {/* Mobile bottom tab bar (Section 5) */}
+            <MobileTabBar />
           </div>
-        </div>
-      </BrowserRouter>
-    </QueryClientProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 
