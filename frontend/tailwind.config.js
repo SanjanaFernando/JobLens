@@ -40,8 +40,9 @@ export default {
         },
       },
       fontFamily: {
-        heading: ['"Hallo Sans"', '"Noto Sans Sinhala"', '"Noto Sans Tamil"', 'system-ui', 'sans-serif'],
-        body: ['"Neutra Text"', '"Noto Sans Sinhala"', '"Noto Sans Tamil"', 'system-ui', 'sans-serif'],
+        heading: ['"Hallo Sans"', '"Plus Jakarta Sans"', '"Noto Sans Sinhala"', '"Noto Sans Tamil"', 'system-ui', 'sans-serif'],
+        body: ['"Neutra Text"', '"Plus Jakarta Sans"', '"Noto Sans Sinhala"', '"Noto Sans Tamil"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       borderRadius: {
         lg: '8px',

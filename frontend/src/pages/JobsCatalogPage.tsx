@@ -1,212 +1,264 @@
 import React, { useState } from 'react';
 import { 
-  Building2, 
   Search, 
   Upload, 
-  Info,
-  Clock
+  Clock, 
+  Target, 
+  Briefcase,
+  SlidersHorizontal
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { SkillChip } from '../components/ui/SkillChip';
+import { SAMPLE_ROLES, INITIAL_CANDIDATE, JobRole } from '../data/mockData';
+import { RoleMatchModal } from '../components/RoleMatchModal';
+import { JobAnalyzeModal } from '../components/JobAnalyzeModal';
 
 export const JobsCatalogPage: React.FC = () => {
+  const [roles, setRoles] = useState<JobRole[]>(SAMPLE_ROLES);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDiscipline, setSelectedDiscipline] = useState<string>('All');
+  const [selectedLevel, setSelectedLevel] = useState<string>('All');
+  const [candidate] = useState(INITIAL_CANDIDATE);
+  const [matchModalRole, setMatchModalRole] = useState<JobRole | null>(null);
+  const [isAnalyzeModalOpen, setIsAnalyzeModalOpen] = useState(false);
 
-  // Sample data adhering to Section 6 Company Card and Job Badge requirements
-  const sampleCompanies = [
-    {
-      id: '1',
-      name: 'WSO2 Sri Lanka',
-      type: 'Local software exporter',
-      age: 'Long-standing (15+ yrs)',
-      size: '500-1000 employees',
-      isEstimate: false,
-      roles: [
-        {
-          id: 'r1',
-          title: 'Software engineer intern',
-          level: 'Intern',
-          discipline: 'Software engineering',
-          status: 'verified' as const,
-          closingDate: '30 Oct 2026',
-          submissions: 8,
-          mustSkills: ['Java', 'Algorithms', 'OOP', 'Git'],
-          niceSkills: ['Ballerina', 'Docker'],
-        },
-        {
-          id: 'r2',
-          title: 'Associate software engineer',
-          level: 'Associate',
-          discipline: 'Software engineering',
-          status: 'verified' as const,
-          closingDate: '15 Nov 2026',
-          submissions: 6,
-          mustSkills: ['Java 21', 'Spring Boot', 'REST APIs', 'PostgreSQL'],
-          niceSkills: ['Kubernetes', 'Microservices'],
-        },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Sysco LABS Sri Lanka',
-      type: 'MNC subsidiary',
-      age: 'Established (5-15 yrs)',
-      size: '1000+ employees',
-      isEstimate: false,
-      roles: [
-        {
-          id: 'r3',
-          title: 'Associate quality assurance engineer',
-          level: 'Associate',
-          discipline: 'Quality assurance',
-          status: 'verified' as const,
-          closingDate: '20 Oct 2026',
-          submissions: 4,
-          mustSkills: ['Test automation', 'Selenium', 'Java', 'SQL'],
-          niceSkills: ['Playwright', 'Cypress'],
-        },
-      ],
-    },
-    {
-      id: '3',
-      name: 'CloudPulse Technologies',
-      type: 'Startup',
-      age: 'New (< 5 yrs)',
-      size: '20-50 employees',
-      isEstimate: true, // "AI estimate, please verify" tag required
-      roles: [
-        {
-          id: 'r4',
-          title: 'Junior devops engineer',
-          level: 'Junior',
-          discipline: 'DevOps',
-          status: 'unverified' as const,
-          closingDate: '12 Nov 2026',
-          submissions: 1,
-          mustSkills: ['Linux', 'Docker', 'Bash', 'AWS basics'],
-          niceSkills: ['Terraform', 'GitHub Actions'],
-        },
-      ],
-    },
-  ];
+  const disciplines = ['All', 'Software engineering', 'Quality assurance', 'DevOps', 'Data engineering'];
+  const levels = ['All', 'INTERN', 'ASSOCIATE', 'JUNIOR'];
 
-  const filtered = sampleCompanies.filter((c) =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.roles.some((r) => r.title.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredRoles = roles.filter((role) => {
+    const matchesSearch =
+      role.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      role.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      role.requirements.some((r) => r.skill.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesDiscipline = selectedDiscipline === 'All' || role.discipline === selectedDiscipline;
+    const matchesLevel = selectedLevel === 'All' || role.level === selectedLevel;
+
+    return matchesSearch && matchesDiscipline && matchesLevel;
+  });
+
+  const handleRoleAdded = (newRoleData: any) => {
+    const newRole: JobRole = {
+      id: `role-${Date.now()}`,
+      companyId: `c-${Date.now()}`,
+      companyName: newRoleData.companyName,
+      companyType: 'Crowd submission',
+      companyAge: 'New entry',
+      companySize: 'Unspecified',
+      title: newRoleData.title,
+      level: newRoleData.level,
+      discipline: newRoleData.discipline,
+      location: newRoleData.location,
+      salaryBandLKR: 'Benchmark Pending',
+      closingDate: newRoleData.closingDate,
+      status: 'unverified',
+      seenCount: 1,
+      description: 'Extracted via JobLens multimodal engine.',
+      requirements: newRoleData.mustSkills.map((s: string) => ({
+        skill: s,
+        normalizedSkill: s.toLowerCase(),
+        type: 'MUST' as const,
+        category: 'TECH' as const,
+      })),
+    };
+    setRoles([newRole, ...roles]);
+  };
 
   return (
     <div className="space-y-6 max-w-[1200px] mx-auto pb-20 md:pb-8">
-      {/* Page skeleton: Title + description + primary action at top right */}
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
         <div>
           <h1 className="text-2xl sm:text-[28px] font-normal leading-tight text-text">
             Shared job catalog
           </h1>
           <p className="text-sm text-text-muted mt-1">
-            Browse crowd-contributed engineering positions cataloged under company and role.
+            Explore and match Sri Lankan tech requirements categorized under Company → Role.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="primary" icon={Upload}>
+          <Button
+            variant="primary"
+            icon={Upload}
+            onClick={() => setIsAnalyzeModalOpen(true)}
+          >
             Add job description
           </Button>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <Card className="p-4 sm:p-4">
+      {/* Search and Filters Card */}
+      <Card className="p-4 sm:p-5 space-y-4">
         <div className="relative">
           <Search className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" strokeWidth={1.75} />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by company name or role title…"
+            placeholder="Search by company, title, or required skill (e.g. Java, Docker, QA)…"
             className="w-full pl-9 pr-4 h-10 rounded-lg bg-surface-2 border border-border text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           />
         </div>
+
+        {/* Filter Pills */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-border">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-text-muted font-medium mr-1 flex items-center gap-1">
+              <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.75} />
+              Discipline:
+            </span>
+            {disciplines.map((d) => (
+              <button
+                key={d}
+                onClick={() => setSelectedDiscipline(d)}
+                className={`h-6 px-2.5 rounded-full text-xs font-medium transition-colors ${
+                  selectedDiscipline === d
+                    ? 'bg-primary text-white'
+                    : 'bg-surface-2 text-text-muted hover:text-text'
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-text-muted font-medium mr-1">Level:</span>
+            {levels.map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => setSelectedLevel(lvl)}
+                className={`h-6 px-2.5 rounded-full text-xs font-medium transition-colors ${
+                  selectedLevel === lvl
+                    ? 'bg-primary text-white'
+                    : 'bg-surface-2 text-text-muted hover:text-text'
+                }`}
+              >
+                {lvl}
+              </button>
+            ))}
+          </div>
+        </div>
       </Card>
 
-      {/* Company & Role List */}
+      {/* Roles List */}
       <div className="space-y-4">
-        {filtered.map((company) => (
-          <Card key={company.id} className="space-y-4">
-            {/* Company Card Header (Section 6) */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-primary-soft text-primary flex items-center justify-center font-medium text-xs">
-                  <Building2 className="w-4 h-4" strokeWidth={1.75} />
-                </div>
-                <h2 className="text-base font-medium text-text">{company.name}</h2>
-                <Badge variant="neutral">{company.type}</Badge>
-                <Badge variant="neutral">{company.age}</Badge>
-                <span className="text-xs text-text-muted">{company.size}</span>
-                {company.isEstimate && (
-                  <Badge variant="warning" icon={Info}>
-                    AI estimate, please verify
-                  </Badge>
-                )}
-              </div>
-              <span className="text-xs text-text-muted">
-                {company.roles.length} {company.roles.length === 1 ? 'role' : 'roles'}
-              </span>
-            </div>
-
-            {/* Roles Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {company.roles.map((role) => (
-                <div key={role.id} className="p-4 rounded-lg bg-surface-2 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="text-sm font-medium text-text">{role.title}</h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-text-muted">{role.level}</span>
-                        <span className="text-xs text-text-muted">•</span>
-                        <span className="text-xs text-text-muted">{role.discipline}</span>
-                      </div>
-                    </div>
-                    {/* Status Badge (Section 2) */}
+        {filteredRoles.length > 0 ? (
+          filteredRoles.map((role) => (
+            <Card key={role.id} className="p-4 sm:p-6 space-y-4 hover:border-primary/40 transition-colors">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-border pb-3">
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold text-primary">{role.companyName}</span>
+                    <Badge variant="neutral">{role.companyType}</Badge>
                     <Badge variant={role.status === 'verified' ? 'success' : 'warning'}>
                       {role.status === 'verified' ? 'Verified' : 'Unverified'}
                     </Badge>
+                    {role.isAiEstimate && (
+                      <Badge variant="warning">AI estimate, please verify</Badge>
+                    )}
                   </div>
-
-                  {/* Skills (Section 2 & 6) */}
-                  <div className="space-y-2">
-                    <div>
-                      <span className="text-[11px] font-medium text-text-muted block mb-1">Must have:</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {role.mustSkills.map((s, idx) => (
-                          <SkillChip key={idx} name={s} status="matched" />
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-[11px] font-medium text-text-muted block mb-1">Nice to have:</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {role.niceSkills.map((s, idx) => (
-                          <SkillChip key={idx} name={s} status="nice-to-have" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-text-muted pt-2 border-t border-border">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" strokeWidth={1.75} />
-                      Closes {role.closingDate}
-                    </span>
-                    <span>{role.submissions} submissions</span>
+                  <h2 className="text-lg font-medium text-text">{role.title}</h2>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
+                    <span>{role.level}</span>
+                    <span>•</span>
+                    <span>{role.discipline}</span>
+                    <span>•</span>
+                    <span>{role.location}</span>
+                    <span>•</span>
+                    <span className="text-text font-medium">{role.salaryBandLKR}</span>
                   </div>
                 </div>
-              ))}
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="primary"
+                    icon={Target}
+                    onClick={() => setMatchModalRole(role)}
+                    className="text-xs"
+                  >
+                    Match with my CV
+                  </Button>
+                </div>
+              </div>
+
+              {/* Requirements Chips */}
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  <span className="text-xs font-semibold text-text-muted mr-1">Must have:</span>
+                  {role.requirements
+                    .filter((r) => r.type === 'MUST')
+                    .map((req, idx) => (
+                      <SkillChip key={idx} name={req.skill} status="matched" />
+                    ))}
+                </div>
+
+                {role.requirements.some((r) => r.type === 'NICE') && (
+                  <div className="flex flex-wrap gap-1.5 items-center">
+                    <span className="text-xs font-medium text-text-muted mr-1">Nice to have:</span>
+                    {role.requirements
+                      .filter((r) => r.type === 'NICE')
+                      .map((req, idx) => (
+                        <SkillChip key={idx} name={req.skill} status="nice-to-have" />
+                      ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-text-muted pt-2 border-t border-border">
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" strokeWidth={1.75} />
+                  Closing date: {role.closingDate}
+                </span>
+                <span className="flex items-center gap-3">
+                  <span>{role.seenCount} submissions recorded</span>
+                  <button 
+                    onClick={() => alert(`Reported role "${role.title}". Thank you for keeping the catalog clean!`)}
+                    className="hover:text-danger transition-colors"
+                  >
+                    Report inaccuracy
+                  </button>
+                </span>
+              </div>
+            </Card>
+          ))
+        ) : (
+          <div className="p-8 text-center bg-surface border border-border rounded-xl space-y-3">
+            <Briefcase className="w-8 h-8 text-text-muted mx-auto" strokeWidth={1.75} />
+            <h3 className="text-base font-medium text-text">No matching roles found</h3>
+            <p className="text-sm text-text-muted max-w-sm mx-auto">
+              Try adjusting your search terms or filters, or add a new job description to the catalog.
+            </p>
+            <div className="pt-2">
+              <Button
+                variant="primary"
+                icon={Upload}
+                onClick={() => setIsAnalyzeModalOpen(true)}
+              >
+                Add job description
+              </Button>
             </div>
-          </Card>
-        ))}
+          </div>
+        )}
       </div>
+
+      {/* Modals */}
+      <RoleMatchModal
+        role={matchModalRole}
+        candidate={candidate}
+        isOpen={!!matchModalRole}
+        onClose={() => setMatchModalRole(null)}
+      />
+
+      <JobAnalyzeModal
+        isOpen={isAnalyzeModalOpen}
+        onClose={() => setIsAnalyzeModalOpen(false)}
+        onRoleAdded={handleRoleAdded}
+      />
     </div>
   );
 };
