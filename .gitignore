@@ -1,0 +1,31 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Dependencies & Build - Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Dependencies & Build - Backend
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.iml
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker volumes
+docker-data/

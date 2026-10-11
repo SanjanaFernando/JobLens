@@ -1,0 +1,13 @@
+package lk.joblens;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class JoblensBackendApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
