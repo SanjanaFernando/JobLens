@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Sun, Moon, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Target, Sun, Moon, CheckCircle2, AlertTriangle, XCircle, LogIn, LogOut } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSystemHealth } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -41,7 +43,7 @@ export const Navbar: React.FC = () => {
               JobLens
             </span>
             <span className="h-6 px-2.5 rounded-full text-xs font-medium bg-primary-soft text-primary inline-flex items-center">
-              Phase 0
+              Phase 1
             </span>
           </div>
           <p className="text-xs text-text-muted hidden sm:block">
@@ -81,11 +83,14 @@ export const Navbar: React.FC = () => {
           </span>
         </div>
 
+        {/* User profile / Auth buttons */}
+        <AuthNavbarSection />
+
         {/* Theme toggle button (Section 2) */}
         <button
           onClick={toggleTheme}
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="h-10 w-10 rounded-lg flex items-center justify-center text-text-muted hover:text-text hover:bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="h-10 w-10 rounded-lg flex items-center justify-center text-text-muted hover:text-text hover:bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
         >
           {theme === 'dark' ? (
             <Sun className="w-5 h-5" strokeWidth={1.75} />
@@ -95,5 +100,47 @@ export const Navbar: React.FC = () => {
         </button>
       </div>
     </header>
+  );
+};
+
+const AuthNavbarSection: React.FC = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+
+  if (isAuthenticated && user) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="hidden md:flex flex-col items-end text-xs">
+          <span className="font-semibold text-text truncate max-w-[150px]">{user.email}</span>
+          <span className="text-[10px] text-accent font-mono">{user.tenantSchema}</span>
+        </div>
+        <button
+          onClick={logout}
+          aria-label="Logout"
+          className="h-9 px-3 rounded-lg border border-border text-xs font-medium text-text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 transition inline-flex items-center gap-1.5 cursor-pointer"
+          title="Sign out of JobLens"
+        >
+          <LogOut className="w-3.5 h-3.5" strokeWidth={1.75} />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <Link
+        to="/login"
+        className="h-9 px-3 rounded-lg border border-border text-xs font-semibold text-text hover:bg-surface-2 transition inline-flex items-center gap-1"
+      >
+        <LogIn className="w-3.5 h-3.5" strokeWidth={1.75} />
+        <span>Login</span>
+      </Link>
+      <Link
+        to="/register"
+        className="h-9 px-3 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold shadow-xs transition hidden sm:inline-flex items-center"
+      >
+        Register
+      </Link>
+    </div>
   );
 };

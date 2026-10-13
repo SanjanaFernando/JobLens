@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  Upload, 
-  ArrowRight, 
-  Target, 
-  Sparkles, 
-  CheckCircle2, 
-  TrendingUp, 
+import {
+  Upload,
+  ArrowRight,
+  Target,
+  Sparkles,
+  CheckCircle2,
+  TrendingUp,
   FileText,
   Clock,
   ChevronDown,
@@ -227,7 +227,7 @@ export const DashboardPage: React.FC = () => {
 
       {/* Expandable Phase 0 Architecture & Developer Status Card */}
       <Card className="p-4 sm:p-5 space-y-3">
-        <div 
+        <div
           className="flex items-center justify-between cursor-pointer select-none"
           onClick={() => setShowPhase0Details(!showPhase0Details)}
         >

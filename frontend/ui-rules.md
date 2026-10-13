@@ -199,4 +199,4 @@ Before a page is done, confirm:
 - [ ] Follows the page skeleton (title, description, primary action, cards)
 - [ ] Works at 360 px width and in dark mode
 - [ ] Has loading, empty, error, and success states
-- [ ] Passes keyboard-only use and AA contrast
+- [ ] Passes keyboard-only use and AA contrast2

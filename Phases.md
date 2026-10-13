@@ -82,29 +82,27 @@ If you enable billing:
 
 ## Phase 1: Auth, Shared DB and Per-User Private DB (Weeks 1-2)
 
-**Goal:** Users can register and log in, and each gets an isolated private database. This is the hardest architectural part, so build and test it first.
-
-**Backend tasks**
-- [ ] **Master/shared DB** tables: `app_user(id, email, password_hash, tenant_schema, created_at)` plus the shared tables from Phase 3.
-- [ ] Registration: validate, BCrypt the password, create the user row, **provision the private schema/DB**, run Flyway migrations from `db/tenant`.
-- [ ] Login: issue a JWT (access token) and a refresh token. The JWT carries `userId`.
-- [ ] `TenantContext` (ThreadLocal) plus an auth filter that reads the JWT and sets the tenant.
-- [ ] `AbstractRoutingDataSource` (or schema switching via `search_path`) for private repositories.
-- [ ] Two JPA configurations with separate packages:
+**Goal:** Users can register and log in, and each gets an isolated private database. This is the hardest architectural part, so build and test it first.**Backend tasks**
+- [x] **Master/shared DB** tables: `app_user(id, email, password_hash, tenant_schema, created_at)` plus the shared tables from Phase 3.
+- [x] Registration: validate, BCrypt the password, create the user row, **provision the private schema/DB**, run Flyway migrations from `db/tenant`.
+- [x] Login: issue a JWT (access token) and a refresh token. The JWT carries `userId`.
+- [x] `TenantContext` (ThreadLocal) plus an auth filter that reads the JWT and sets the tenant.
+- [x] `AbstractRoutingDataSource` (or schema switching via `search_path`) for private repositories.
+- [x] Two JPA configurations with separate packages:
   - `shared.entity` / `shared.repo` → fixed DataSource, `db/shared` migrations
   - `tenant.entity` / `tenant.repo` → routed DataSource, `db/tenant` migrations
-- [ ] Lazy per-user DataSource creation with tiny pools and idle eviction (Caffeine) if using real separate databases.
-- [ ] "Delete my account" endpoint: drops the private schema/DB and removes the user.
+- [x] Lazy per-user DataSource creation with tiny pools and idle eviction (Caffeine) if using real separate databases.
+- [x] "Delete my account" endpoint: drops the private schema/DB and removes the user.
 
 **Frontend tasks**
-- [ ] Register and login pages, protected routes, token storage, and an auth context.
-- [ ] Axios interceptor for the JWT and refresh flow.
-- [ ] App layout with sidebar: Dashboard, Jobs, Resume, Chat.
+- [x] Register and login pages, protected routes, token storage, and an auth context.
+- [x] Axios interceptor for the JWT and refresh flow.
+- [x] App layout with sidebar: Dashboard, Jobs, Resume, Chat.
 
 **Tests (mandatory)**
-- [ ] Integration test: user A cannot read or write user B's data.
-- [ ] Test that a request without a valid JWT never reaches a private repository.
-- [ ] Test that provisioning is repeatable and rolls back cleanly on failure.
+- [x] Integration test: user A cannot read or write user B's data.
+- [x] Test that a request without a valid JWT never reaches a private repository.
+- [x] Test that provisioning is repeatable and rolls back cleanly on failure.
 
 **Deliverable:** Register → private schema created → login → empty dashboard.
 
